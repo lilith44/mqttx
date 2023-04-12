@@ -37,11 +37,11 @@ func New(config Config, logger *zap.SugaredLogger, clientIdGenerator func(string
 	options.SetKeepAlive(config.Broker.KeepAliveInterval * time.Second)
 
 	options.OnConnectionLost = func(c mqtt.Client, err error) {
-		logger.Errorf("[Mqtt]与broker断开连接：%s，尝试重连", err)
+		logger.Errorf("与broker断开连接：%s，尝试重连", err)
 	}
 
 	options.OnConnect = func(c mqtt.Client) {
-		logger.Infof("[Mqtt]连接broker成功")
+		logger.Infof("连接broker成功")
 
 		for _, subscribe := range client.subscribes {
 			client.Subscribe(&subscribe)
@@ -93,14 +93,16 @@ func (c *Client) Publish(options *PublishOptions) error {
 	topic := getDelayedTopic(options.Topic, options.Delayed)
 	token := c.client.Publish(topic, options.Qos, options.Retained, data)
 
+	c.logger.Infof("发布消息至%s，payload：%s", topic, data)
+
 	if !token.WaitTimeout(c.publishTimeout) {
-		c.logger.Errorf("[Mqtt]发布消息至%s超时", topic)
+		c.logger.Errorf("发布消息至%s超时", topic)
 
 		return nil
 	}
 
 	if err = token.Error(); err != nil {
-		c.logger.Errorf("[Mqtt]发布消息至%s发生错误：%s", topic, err)
+		c.logger.Errorf("发布消息至%s发生错误：%s", topic, err)
 
 		return err
 	}
@@ -130,7 +132,7 @@ func (c *Client) Subscribe(options *SubscribeOptions) {
 		topic = getSharedTopic(topic, options.Group)
 	}
 
-	c.logger.Infof("[Mqtt]开始订阅主题%s", topic)
+	c.logger.Infof("开始订阅主题%s", topic)
 
 	c.subscribes[topic] = SubscribeOptions{
 		Topic:    topic,
@@ -142,7 +144,7 @@ func (c *Client) Subscribe(options *SubscribeOptions) {
 
 	c.client.Subscribe(topic, options.Qos, options.Callback)
 
-	c.logger.Infof("[Mqtt]订阅主题%s成功", topic)
+	c.logger.Infof("订阅主题%s成功", topic)
 }
 
 type UnsubscribeOptions struct {
@@ -172,7 +174,7 @@ func (c *Client) Unsubscribe(options ...*UnsubscribeOptions) {
 		topics = append(topics, topic)
 	}
 
-	c.logger.Infof("[Mqtt]取消订阅主题：%v", topics)
+	c.logger.Infof("取消订阅主题：%v", topics)
 
 	c.client.Unsubscribe(topics...)
 	for _, topic := range topics {
