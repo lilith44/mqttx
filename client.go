@@ -24,7 +24,7 @@ type Client struct {
 
 func New(config Config, logger *zap.SugaredLogger, clientIdGenerator func(string) string) (*Client, error) {
 	client := &Client{
-		publishTimeout: config.Broker.PublishTimeout,
+		publishTimeout: config.Broker.PublishTimeout * time.Second,
 		logger:         logger,
 		subscribes:     make(map[string]SubscribeOptions),
 	}
