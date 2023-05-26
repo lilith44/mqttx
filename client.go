@@ -134,8 +134,8 @@ func (c *Client) Subscribe(options *SubscribeOptions) {
 
 	c.logger.Infof("开始订阅主题%s", topic)
 
-	c.subscribes[topic] = SubscribeOptions{
-		Topic:    topic,
+	c.subscribes[options.Topic] = SubscribeOptions{
+		Topic:    options.Topic,
 		Share:    options.Share,
 		Group:    options.Group,
 		Qos:      options.Qos,
@@ -167,11 +167,11 @@ func (c *Client) Unsubscribe(options ...*UnsubscribeOptions) {
 			topic = getSharedTopic(topic, option.Group)
 		}
 
-		if _, ok := c.subscribes[topic]; !ok {
+		if _, ok := c.subscribes[option.Topic]; !ok {
 			continue
 		}
 
-		topics = append(topics, topic)
+		topics = append(topics, option.Topic)
 	}
 
 	c.logger.Infof("取消订阅主题：%v", topics)
