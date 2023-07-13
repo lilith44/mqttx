@@ -184,7 +184,7 @@ func (c *Client) Unsubscribe(options ...*UnsubscribeOptions) {
 
 func getDelayedTopic(topic string, delayed time.Duration) string {
 	if delayed != 0 && !strings.HasPrefix(topic, "$delayed") {
-		topic = fmt.Sprintf("$delayed/%d/%s", delayed, topic)
+		topic = fmt.Sprintf("$delayed/%d/%s", delayed/time.Second, topic)
 	}
 
 	return topic
